@@ -1,0 +1,18 @@
+<div id="repos-list"></div>
+
+<script>
+fetch('https://api.github.com/users/catnull-dev/repos')
+  .then(response => response.json())
+  .then(repos => {
+    const list = document.getElementById('repos-list');
+    repos.forEach(repo => {
+      const item = document.createElement('div');
+      item.innerHTML = `
+        <h3><a href="${repo.html_url}">${repo.name}</a></h3>
+        <p>${repo.description || 'Нет описания'}</p>
+        <p>⭐ ${repo.stargazers_count} | 🍴 ${repo.forks_count}</p>
+      `;
+      list.appendChild(item);
+    });
+  });
+</script>
