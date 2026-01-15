@@ -1,18 +1,558 @@
-<div id="repos-list"></div>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>catnull-dev - GitHub Профиль</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #238636;
+            --primary-dark: #1c6b2a;
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --text-color: #f0f6fc;
+            --text-secondary: #8b949e;
+            --border-color: #30363d;
+            --accent-color: #58a6ff;
+            --shadow: 0 8px 24px rgba(1, 4, 9, 0.8);
+            --border-radius: 12px;
+        }
 
-<script>
-fetch('https://api.github.com/users/catnull-dev/repos')
-  .then(response => response.json())
-  .then(repos => {
-    const list = document.getElementById('repos-list');
-    repos.forEach(repo => {
-      const item = document.createElement('div');
-      item.innerHTML = `
-        <h3><a href="${repo.html_url}">${repo.name}</a></h3>
-        <p>${repo.description || 'Нет описания'}</p>
-        <p>⭐ ${repo.stargazers_count} | 🍴 ${repo.forks_count}</p>
-      `;
-      list.appendChild(item);
-    });
-  });
-</script>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid var(--primary-color);
+            object-fit: cover;
+        }
+
+        .profile-info h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .profile-info p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card-bg);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .github-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .github-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        @media (min-width: 992px) {
+            .content {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2 i {
+            color: var(--primary-color);
+        }
+
+        #repos-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .repo-card {
+            background-color: rgba(22, 27, 34, 0.7);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .repo-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .repo-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .repo-card h3 a {
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .repo-card h3 a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        .repo-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .repo-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .repo-stats {
+            display: flex;
+            gap: 15px;
+        }
+
+        .repo-stats span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .repo-language {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .language-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+        }
+
+        .about-me {
+            margin-bottom: 20px;
+        }
+
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .skill-tag {
+            background-color: rgba(56, 139, 253, 0.15);
+            color: var(--accent-color);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .contact-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .contact-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 20px;
+        }
+
+        .loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(35, 134, 54, 0.2);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error-message {
+            background-color: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.4);
+            color: #f85149;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .last-updated {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="profile-section">
+                <img id="user-avatar" class="avatar" src="https://avatars.githubusercontent.com/u/583231?v=4" alt="Аватар catnull-dev">
+                <div class="profile-info">
+                    <h1 id="user-name">catnull-dev</h1>
+                    <p id="user-bio">Загрузка информации о пользователе...</p>
+                    <div class="stats">
+                        <div class="stat">
+                            <i class="fas fa-users"></i>
+                            <span id="followers">0</span> подписчиков
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-user-plus"></i>
+                            <span id="following">0</span> подписок
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-code-branch"></i>
+                            <span id="public-repos">0</span> репозиториев
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a href="https://github.com/catnull-dev" class="github-btn" target="_blank">
+                <i class="fab fa-github"></i> Перейти в GitHub
+            </a>
+        </header>
+
+        <div class="content">
+            <main>
+                <div class="card">
+                    <h2><i class="fas fa-code"></i> Мои репозитории</h2>
+                    <div id="repos-list" class="loader">
+                        <div class="spinner"></div>
+                        <p>Загрузка репозиториев...</p>
+                    </div>
+                    <div class="last-updated" id="last-updated"></div>
+                </div>
+            </main>
+
+            <aside>
+                <div class="card">
+                    <h2><i class="fas fa-user"></i> Обо мне</h2>
+                    <div class="about-me">
+                        <p id="user-about">Информация загружается...</p>
+                    </div>
+                    <div class="skills">
+                        <span class="skill-tag">JavaScript</span>
+                        <span class="skill-tag">HTML/CSS</span>
+                        <span class="skill-tag">Git</span>
+                        <span class="skill-tag">API</span>
+                        <span class="skill-tag">Web Development</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2><i class="fas fa-envelope"></i> Контакты</h2>
+                    <div class="contact-links">
+                        <a href="https://github.com/catnull-dev" class="contact-link" target="_blank">
+                            <i class="fab fa-github"></i> GitHub
+                        </a>
+                        <a href="#" class="contact-link">
+                            <i class="fas fa-globe"></i> Веб-сайт
+                        </a>
+                        <a href="#" class="contact-link">
+                            <i class="fas fa-envelope"></i> Email
+                        </a>
+                        <a href="#" class="contact-link">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <footer class="footer">
+            <p>© 2023 catnull-dev. Все права защищены.</p>
+            <p>Страница создана с использованием GitHub Pages и GitHub API</p>
+        </footer>
+    </div>
+
+    <script>
+        // Элементы DOM
+        const userNameElement = document.getElementById('user-name');
+        const userBioElement = document.getElementById('user-bio');
+        const userAvatarElement = document.getElementById('user-avatar');
+        const followersElement = document.getElementById('followers');
+        const followingElement = document.getElementById('following');
+        const publicReposElement = document.getElementById('public-repos');
+        const reposListElement = document.getElementById('repos-list');
+        const userAboutElement = document.getElementById('user-about');
+        const lastUpdatedElement = document.getElementById('last-updated');
+
+        // Функция для форматирования даты
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ru-RU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Функция для получения цвета языка программирования
+        function getLanguageColor(language) {
+            const colors = {
+                'JavaScript': '#f1e05a',
+                'TypeScript': '#2b7489',
+                'HTML': '#e34c26',
+                'CSS': '#563d7c',
+                'Python': '#3572A5',
+                'Java': '#b07219',
+                'C++': '#f34b7d',
+                'C#': '#178600',
+                'PHP': '#4F5D95',
+                'Ruby': '#701516',
+                'Go': '#00ADD8',
+                'Rust': '#dea584',
+                'Shell': '#89e051',
+                'Vue': '#2c3e50',
+                'React': '#61dafb'
+            };
+            return colors[language] || '#238636';
+        }
+
+        // Загрузка данных пользователя
+        fetch('https://api.github.com/users/catnull-dev')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка загрузки данных пользователя');
+                }
+                return response.json();
+            })
+            .then(user => {
+                // Обновление информации о пользователе
+                userNameElement.textContent = user.name || user.login;
+                userBioElement.textContent = user.bio || 'Пользователь GitHub';
+                userAvatarElement.src = user.avatar_url;
+                followersElement.textContent = user.followers;
+                followingElement.textContent = user.following;
+                publicReposElement.textContent = user.public_repos;
+                
+                // Заполнение информации "Обо мне"
+                if (user.bio) {
+                    userAboutElement.textContent = user.bio;
+                } else {
+                    userAboutElement.textContent = "Разработчик, увлеченный созданием интересных проектов с открытым исходным кодом. Исследую новые технологии и делюсь своими наработками с сообществом.";
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при загрузке данных пользователя:', error);
+                userBioElement.textContent = 'Не удалось загрузить информацию о пользователе';
+            });
+
+        // Загрузка репозиториев
+        fetch('https://api.github.com/users/catnull-dev/repos?sort=updated&per_page=100')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка загрузки репозиториев');
+                }
+                return response.json();
+            })
+            .then(repos => {
+                // Очистка списка репозиториев
+                reposListElement.innerHTML = '';
+                
+                // Если репозиториев нет
+                if (repos.length === 0) {
+                    reposListElement.innerHTML = '<div class="error-message">Репозитории не найдены</div>';
+                    return;
+                }
+                
+                // Фильтрация репозиториев (исключаем форки)
+                const filteredRepos = repos.filter(repo => !repo.fork);
+                
+                // Сортировка по количеству звезд
+                filteredRepos.sort((a, b) => b.stargazers_count - a.stargazers_count);
+                
+                // Отображение репозиториев
+                filteredRepos.forEach(repo => {
+                    const repoCard = document.createElement('div');
+                    repoCard.className = 'repo-card';
+                    
+                    // Определяем язык программирования
+                    const language = repo.language || 'Не указан';
+                    const languageColor = getLanguageColor(language);
+                    
+                    repoCard.innerHTML = `
+                        <h3><a href="${repo.html_url}" target="_blank">${repo.name}</a></h3>
+                        <p>${repo.description || 'Нет описания'}</p>
+                        <div class="repo-meta">
+                            <div class="repo-language">
+                                <span class="language-dot" style="background-color: ${languageColor}"></span>
+                                <span>${language}</span>
+                            </div>
+                            <div class="repo-stats">
+                                <span title="Звезды">
+                                    <i class="fas fa-star"></i> ${repo.stargazers_count}
+                                </span>
+                                <span title="Форки">
+                                    <i class="fas fa-code-branch"></i> ${repo.forks_count}
+                                </span>
+                                <span title="Размер">
+                                    <i class="fas fa-weight-hanging"></i> ${Math.round(repo.size / 1024 * 10) / 10} MB
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    reposListElement.appendChild(repoCard);
+                });
+                
+                // Обновление времени последнего обновления
+                if (filteredRepos.length > 0) {
+                    const lastUpdated = filteredRepos[0].updated_at;
+                    lastUpdatedElement.textContent = `Последнее обновление: ${formatDate(lastUpdated)}`;
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при загрузке репозиториев:', error);
+                reposListElement.innerHTML = `
+                    <div class="error-message">
+                        <h3>Ошибка загрузки репозиториев</h3>
+                        <p>${error.message}. Пожалуйста, проверьте подключение к интернету или попробуйте позже.</p>
+                    </div>
+                `;
+            });
+    </script>
+</body>
+</html>
